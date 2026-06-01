@@ -478,15 +478,10 @@ export default function DSATeacher() {
 
   const handleProblemSelect = (prob: string) => {
     setSelectedProblem(prob);
-    const isTraining = prob.startsWith('Training:');
+    // Optionally add a message from Sensei when switching problems
     setMessages(prev => [
       ...prev,
-      { 
-        role: 'assistant', 
-        content: isTraining 
-          ? `Ah, **${prob}**! This is a training scroll. You do not need to code right away. I am here to teach you the concepts from the ground up. Tell me when you are ready to begin, or ask me any questions about this topic!` 
-          : `Ah, **${prob}**! A fine choice. I am watching your code. Let me know when you need a hint.` 
-      }
+      { role: 'assistant', content: `Ah, **${prob}**! A fine choice. I am watching your code. Let me know when you need a hint.` }
     ]);
   };
 
@@ -499,20 +494,6 @@ export default function DSATeacher() {
     if (!overrideInput) setInput('');
     setIsLoading(true);
     setMood('thinking');
-
-    const isTraining = selectedProblem.startsWith('Training:');
-    const trainingInstruction = isTraining ? `
-          TRAINING MODE ACTIVE:
-          The user has selected a Training topic. They do NOT need to write code.
-          Your goal is to TEACH the concept from scratch.
-          - Explain the theory clearly.
-          - Use analogies.
-          - Provide visual diagrams using <sketch>.
-          - Walk through examples step-by-step.
-          - Ask the user questions to check their understanding before moving on.
-    ` : `
-          Always consider their current code when answering. If they ask for a review or hint, look at their code and guide them without giving away the full answer immediately. Point out specific lines or logic flaws if you see them.
-    `;
 
     const systemInstruction = mode === 'samurai' 
       ? `You are "Miyamoto Sensei", a legendary Samurai Swordmaster and DSA Guru. 
@@ -538,7 +519,6 @@ export default function DSATeacher() {
           CRITICAL CONTEXT:
           Problem: "${selectedProblem}".
           Code: \`\`\`${language}\n${currentCode}\n\`\`\`
-          ${trainingInstruction}
           `
       : `You are "DSA Sensei", an expert Data Structures and Algorithms teacher with a personality inspired by wise manga mentors. 
           Your style is compact, to the point, and highly visual.
@@ -561,7 +541,7 @@ export default function DSATeacher() {
           \`\`\`${language}
           ${currentCode}
           \`\`\`
-          ${trainingInstruction}
+          Always consider their current code when answering. If they ask for a review or hint, look at their code and guide them without giving away the full answer immediately. Point out specific lines or logic flaws if you see them.
 
           CRITICAL: You have a special ability to generate sketches. 
           If you want to show a diagram (like a tree, graph, or array state), you MUST include a JSON block at the end of your message wrapped in <sketch> tags.
